@@ -60,6 +60,12 @@ module Play
       end
     end
 
+    # Update client library, needed for some clients
+    #
+    # Returns nothing
+    def self.update
+    end
+
     # Say things over the speakers, lol.
     #
     # Returns nothing.

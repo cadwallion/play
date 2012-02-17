@@ -4,13 +4,17 @@ module Play
     #
     # Returns nothing
     def self.play(song_path)
-      if `mpc playlist | wc -l`.to_i < 1
-        if not system('mpc', 'add',
-          song_path.gsub(/^#{Play.config['path']}\//,""))
-          return # mpc didn't add the song, so just return, don't block
-        end
+      if not system('mpc', 'add',
+        song_path.gsub(/^#{Play.config['path']}\//,""))
+        return # mpc didn't add the song, so just return, don't block
       end
       `mpc play`
+      status = `mpc status`.match(/\[.+\] #(\d{1,})\/(\d{1,}) /)
+      if status[1].to_i > 1
+        (status[1].to_i-1).times do
+          `mpc del 1` 
+        end
+      end
       `mpc idle` # self.play is expected to block, so wait for an event
     end
 
@@ -26,6 +30,10 @@ module Play
     # Returns nothing.
     def self.pause
       `mpc pause`
+    end
+
+    def self.update
+      `mpc update` 
     end
 
     # Are we currently paused?

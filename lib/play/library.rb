@@ -30,6 +30,7 @@ module Play
       fs_songs(path).each do |path|
         import_song(path)
       end
+      Play.client.update
     end
 
     # Removes an songs in the database that do not exist or are not readable
