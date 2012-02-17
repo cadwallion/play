@@ -1,20 +1,18 @@
 module Play
   class MpcClient < Client
-    # Have the client play a song
+    # Have the client play a song. In order for this to work, you must have
+    # mpd configured with `consume on` and `save_absolute_paths_in_playlists`
+    # set to "yes" or mpc will never queue, and desync the queue in play.
     #
     # Returns nothing
     def self.play(song_path)
-      if not system('mpc', 'add',
-        song_path.gsub(/^#{Play.config['path']}\//,""))
-        return # mpc didn't add the song, so just return, don't block
-      end
-      `mpc play`
-      status = `mpc status`.match(/\[.+\] #(\d{1,})\/(\d{1,}) /)
-      if status[1].to_i > 1
-        (status[1].to_i-1).times do
-          `mpc del 1` 
+      if `mpc playlist | wc -l`.to_i < 1
+        if not system('mpc', 'add',
+          song_path.gsub(/^#{Play.config['path']}\//,""))
+          return # mpc didn't add the song, so just return, don't block
         end
       end
+      `mpc play`
       `mpc idle` # self.play is expected to block, so wait for an event
     end
 
